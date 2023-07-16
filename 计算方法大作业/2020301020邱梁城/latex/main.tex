@@ -1,0 +1,127 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Peking Univ. Physical Review (cn)
+%
+% LaTeX Template
+% Version 2.1
+% Release 03/19/18
+%
+% Original author:
+% Mathias Legrand (legrand.mathias@gmail.com)
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%----------------------------------------------------------------------------------------
+%	PACKAGES AND OTHER DOCUMENT CONFIGURATIONS
+%----------------------------------------------------------------------------------------
+\RequirePackage{times}      % Loads the Times-Roman Fonts
+\RequirePackage{mathptmx}   % Loads the Times-Roman Math Fonts
+\documentclass[10pt,a4paper,twocolumn]{PPRAcn} % Document font size
+\usepackage[UTF8]{ctex}
+\usepackage[english]{babel} % Specify a different language here - english by default
+\usepackage{lipsum} % Required to insert dummy text. To be removed otherwise
+\usepackage{bm,caption,textcomp,subfigure,float}
+\usepackage{flushend}
+%\usepackage[keeplastbox]{flushend}
+\usepackage{geometry}
+%\usepackage[margin=2cm]{geometry}
+\newgeometry{top=28mm,bottom=25mm,left=20mm,right=25mm}
+\newcommand{\upcite}[1]{\textsuperscript{\textsuperscript{\cite{#1}}}}
+\setlength{\columnsep}{7.0mm} % Distance between the two columns of text
+\setlength{\fboxrule}{0.75pt} % Width of the border around the abstract
+\setlength{\abovecaptionskip}{5pt}
+\setlength{\belowcaptionskip}{0pt}
+\documentclass[11pt]{ctexart}  
+\usepackage[top=2cm, bottom=2cm, left=2cm, right=2cm]{geometry}  
+\usepackage{algorithm}  
+\usepackage{algorithmicx}  
+\usepackage{algpseudocode}  
+\usepackage{amsmath}  
+
+\floatname{algorithm}{算法}  
+\renewcommand{\algorithmicrequire}{\textbf{输入:}}  
+\renewcommand{\algorithmicensure}{\textbf{输出:}}  
+%----------------------------------------------------------------------------------------
+%	COLORS
+%----------------------------------------------------------------------------------------
+
+\definecolor{color1}{RGB}{0,0,90} % Color of the article title and sections
+\definecolor{color2}{RGB}{0,20,20} % Color of the boxes behind the abstract and headings
+
+\usepackage{hyperref} % Required for hyperlinks
+\hypersetup{hidelinks,colorlinks,breaklinks=true,urlcolor=color2,citecolor=color1,linkcolor=color1,bookmarksopen=false,pdftitle={Title},pdfauthor={Author}}
+\newcommand{\keywordname}{Keywords} % Defines the keywords heading name
+\captionsetup[figure]{name={图}}
+\captionsetup[table]{name={表}}
+\captionsetup{font={small}}
+\JournalInfo{Journal, Vol. XXI, No. 1, 1-5, 2013} % Journal information
+\Archive{Additional note} % Additional notes (e.g. copyright, DOI, review/research article)
+
+\input{essay/info} %这是标题，作者和摘要（关键词）
+
+%----------------------------------------------------------------------------------------
+
+\begin{document}
+
+\flushbottom % Makes all text pages the same height
+
+\maketitle % Print the title and abstract box
+%\tableofcontents % Print the contents section
+%\thispagestyle{empty} 
+\input{essay/text} %这是正文
+\phantomsection
+\small
+\renewcommand\refname{参考文献}
+\bibliographystyle{unsrt}
+\bibliography{essay/ref}
+
+\begin{thebibliography}{1}
+	
+	\bibitem{ref1}
+	胡曙辉.
+	\newblock {\em 麦克风阵列语音增强算法研究}.
+	\newblock PhD thesis, 西安电子科技大学.
+	
+	\bibitem{ref2}
+	赫靓.
+	\newblock {\em 基于Krylov子空间的快速DOA估计}.
+	\newblock PhD thesis, 哈尔滨工业大学, 2020.
+	
+	\bibitem{ref3}
+	罗金玉, 刘建平, and 张一闻.
+	\newblock 麦克风阵列信号处理的研究现状与应用.
+	\newblock {\em 现代电子技术}, 33(23):5, 2010.
+	
+	\bibitem{ref4}
+	丁猛.
+	\newblock 基于麦克风阵列的语音增强算法概述.
+	\newblock {\em 大众科技}, (3):29--30, 2011.
+	
+	\bibitem{ref5}
+	黄剑文.
+	\newblock 多通道语音增强算法及应用研究.
+	\newblock Master's thesis, 福州大学, 2014.
+	
+	\bibitem{ref6}
+	杜军 and 桑胜举.
+	\newblock 基于麦克风阵列的语音增强技术及应用.
+	\newblock {\em 计算机应用与软件}, 26(10):3, 2009.
+	
+	\bibitem{ref7}
+	姚胜伟.
+	\newblock {\em 几类共轭梯度算法的研究}.
+	\newblock PhD thesis, 华东理工大学.
+	
+	\bibitem{ref8}
+	房喜明, 令锋, and 傅守忠.
+	\newblock 求解线性方程组的一般共轭梯度法.
+	\newblock {\em 数学理论与应用}, (2):10, 2019.
+	\bibitem{ref9}Higham N J. Cholesky factorization[J]. Wiley interdisciplinary reviews: computational statistics, 2009, 1(2): 251-254.
+	\bibitem{ref10}Zhang, Fuzhen, ed. The Schur complement and its applications. Vol. 4. Springer Science & Business Media, 2006.
+	\bibitem{ref11}Perry A. A modified conjugate gradient algorithm[J]. Operations Research, 1978, 26(6): 1073-1078.
+	\bibitem{ref12}Tesch K, Gerkmann T. Nonlinear spatial filtering in multichannel speech enhancement[J]. IEEE/ACM Transactions on Audio, Speech, and Language Processing, 2021, 29: 1795-1805.
+	\bibitem{ref13}Benesty J, Cohen I, Chen J. Fundamentals of signal enhancement and array signal processing[M]. John Wiley & Sons, 2017.
+	\bibitem{ref14}Burden R L, Faires J D, Burden A M. Numerical analysis[M]. Cengage learning, 2015.
+\end{thebibliography}
+
+%----------------------------------------------------------------------------------------
+\end{document}

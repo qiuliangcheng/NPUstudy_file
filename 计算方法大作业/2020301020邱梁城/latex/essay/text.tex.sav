@@ -1,0 +1,300 @@
+\section{引言}
+随着智能技术的发展，传统的人机交互方法已经不能满足人们的需求，在人机交互方向，人们不只满足于机器人对人的语言进行识别，机器人是否具备情绪识别能力是推进智能人机交互的关键。为了实现机器人与人类的自主情感交互，我们需要机器人有更高的情绪识别能力。
+
+情绪识别在智能人机交互、机器人领域是十分值得探究的前沿热点方向。目前，情绪识别研究多数基于人的面部表情、语音和生理信号来进行。本文基于语音和生理信号的进行情绪识别。语音是一种情绪的外在表现，能够直观地反应说话人的情绪，但是，由于语音可能会被人为地伪装，有时难以检测到说话人的真实情绪。并且，单从语音信号来进行情绪分类识别，难以相近语音特征对应情绪（比如生气和惊讶）的识别。EEG 是人的生理反应，可以更直接地反映人的情感状态。然而EEG 信号复杂度高且十分微弱，并且原始EEG信号噪声来源较多，比如机器的工频干扰、电磁干扰，当人进行呼吸、眨眼、说话、晃动时均会对EEG 信号产生干扰。如果只用EEG 信号进行情绪分类，则会忽视人的外在情绪表现，而且受设备限制，在有些实际应用场景中难以有效执行。基于这两方面考虑，本文同时应用语音和EEG 信号，利用两种信号的互补特性，以提高情绪识别准确率。
+
+在特征融合方面，简单的将多种情感特征组合到一起，不但特征维数高，运算代价大，识别慢，并且含有很多无效信息，影响识别率。为此有些学者提出采用主成分分析等算法对特征进行融合和选择，使识别效率得到提升。但PCA是一种线性特征融合算法，无法描述特征之间的非线性关系。本文提出了采用核典型相关分析算法(KCCA) 进行多特征融合。核典型相关分析（KCCA）是相关分析（CCA）的非线性扩展，CCA是一种非线性特征的提取方法，用核方法来增强典型相关分析方法，不仅能剔除冗余信息，增强鉴别信息，还能解决特征的线性不可分问题，挖掘非线性因素，具有更好的特征提取与表征能力。
+
+\section{情感识别特征的提取}
+\subsection{语音信号特征提取}
+语音情感识别时，需要选取适当的声学参数来对情感进行识别分类。常用的声学参数主要有三大类：韵律学特征、音质特征和基于谱的相关特征。它们分别从不同侧面对语音的情感信息进行表达，均对语音中的情感有一定的区分能力，相对于使用一种特征获取的语音信息比较单一，采用多种特征进行语音情感识别会获得更多的语音情感信息，可提高识别性能。本文中选择了声音韵律、声音质量和基于谱的相关特征共3种特征参数，提取了如下的情感特征：能量，语速，基频，共振峰，MFCC。
+
+1.能量特征提取
+
+语音的能量反应在语音的响亮度上的，在日常生活中我们都有所体会，当人处于愤怒或者惊讶这种激动的情绪状态时，声音响度通常会比较大，而人悲伤或难过时，声音就会变得相对低沉。所以能量特征对某些情感有较好的区分能力，在本文中选取能量的最大值、最小值和均值做为特征。
+
+2.语速特征提取
+
+语速是通过语音信号中包含的音节数和该语句的语音发音时间进行定义的。其值为语音信号发音持续时间与发音中音节数的比值(音节/s)，如下所示。
+\begin{equation}
+  v_{vs}=\frac {s_{vd}}{n_{ps}}
+\end{equation}
+
+语音发音持续时间是包括音节间的停顿的，因不同的停顿频率、时长能反应出不同的情感状态。本文中，为了避免统计语音信号中音节的复杂性，用相对的方法来表示语速。对情感语料库中的数据进行处理时，将平静时的语音(即中性情感状态下的语音)的速度记做1，则其他情感状态下的相对语速为该语音信号的发音时长与对应的中性情感状态下的发音时长的比值，如下所示。
+\begin{equation}
+v_{r v s}=\frac {s_{o s v d}}{s_{vdnes}}
+\end{equation}
+
+3.基频特征提取
+
+通常每一个语音帧中会含有1到7个基音周期，基音周期的倒数为基音频率，即是发浊音时声带振动的频率。通常用基音频率或着基音周期来描述语音的韵律变化，但是个体声道差异问题导致了对基音周期的精确检测存在较大的困难。因为基于其对语音信号的重要性，所以其对基音周期的研究一直是备受关注的课题。常用的基音周期检测算法主要有：倒谱法、小波法、自相关函数法、平均幅度差函数法等，本文中使用的是自相关函数的方法。
+
+假如语音信号为$s(n)$，通过语音信号预处理，用汉明窗将信号分成N帧，加窗之后语音信号为$s_w(n)$,语音信号的短时自相关函数$R_n(k)$的计算公式如\ref{3.8}所示。
+\begin{equation}\label{3.8}
+  R_n(k)=\sum_{m=0}^{N-1-K} x_n(m)x_n(m+k)
+\end{equation}
+
+基音的周期信号为浊音，而浊音的短时自相关函数具有周期性，即浊音信号周期。清音接近于随机噪声，其短时间自相关函数不具备周期性。根据此特性，可以对一个语音信号是清音还是浊音以及浊音的基音周期进行判断。
+
+从\ref{3.8}式可以看出：自相关函数的值为两个等长序列乘积的累加和，并且自相关函数的值随k的增高而降低。通过自相关函数的计算波形周期，若窗口长度不够，那么其所包含的周期就不够多，这样会导致计算困难。因此，使用修正的短时自相关函数来解决这类问题。
+
+4.MFCC特征提取
+
+人的耳朵对不同频率语音信号感知差异很大的，在低频部分对声音的感知与声音的频率成线性关系，在高频的部分却为对数关系，由此定义了一种新的频率：Mel频率，这种频率与平常频率(以Hz为单位的频率)之间的关系如公式\ref{3.9}所示。
+\begin{equation}\label{3.9}
+  Mel(f)=1125\ln(1+F/700)
+\end{equation}
+
+MFCC(Mel频率倒谱系数）是根据人耳听觉领域特性而设计的，计算步骤如下：
+
+(1)通过加窗处理后，现将语音信号变为短时$x_n(m)$，将时域信号换成频域信号，计算它的短时功率谱$|X_n(m)|$。
+
+(2)在Mel频率域内配置K个通道的三角形滤波器组$H_k(i)$，然后计算功率谱经过每一个滤波器的输出：
+\begin{equation}\label{3.10}
+  m(k)=\sum_i H_k(i)|X_n(i)|(k=1,2,...,K)
+\end{equation}
+
+如\ref{3.10}公式中，第i个滤波器可以表示为$H_k(i)$
+
+(3)滤波器输出对数能量为，如\ref{3.11} 所示：
+\begin{equation}\label{3.11}
+  m_k=\log m(k)
+\end{equation}
+
+(4)经过离散余弦变换得到MFCC的特征参数为，如\ref{3.12}
+\begin{equation}\label{3.12}
+  C_{MFCC}(l)=\sqrt\frac {2}{N} \sum_{k-1}^k m_i\cos(k-0.5)\frac{l\pi}k
+\end{equation}
+本文中通过计算出了MFCC的特征参数为$C_1,C_2,...,C_N,$ 然后取它的一阶方差和二阶方差为语音的情感特征。
+
+5.共振峰特征提取
+
+共振峰是一个反映声道特性的重要参数，还与语音质量相关的声学参数。语音是由空气气流经过声道产生的，这时会在一组频率上产生共振，这称为共振峰频率。当人们处于不同情感状态时，其神经的紧张程度是不同，导致声道产生形变，从而改变共振峰频率。因此，共振峰是同说话人情感状态之间是有密切关系的。
+
+提取共振峰特征时常用的提取方法有：线性预测法、离散傅立叶分析法、带通滤波器组法、倒谱法等。考虑到线性预测描述声道模型的准确性，本文决定要使用线性预测法对共振峰参数特征进行提取，并选取了第一、第二、第三共振峰的最大值、最小值、均值和方差作为特征。
+
+\subsection{脑电信号特征提取}
+用于情绪识别的EEG特征值基本分为统计特征、时域特征、频域特征和熵特征等。
+
+1. EEG信号的均值为：
+\begin{equation}\label{2.12}
+{\mu _X} = \frac{1}{N}\sum\limits_{i = 1}^N {{X_i}}
+\end{equation}
+其中，N为EEG信号的总采样点数，X\_i为第i个点的EEG信号电压值。
+
+2. 标准偏差
+\begin{equation}\label{2.13}
+{\sigma _X} = {(\frac{1}{{N - 1}}\sum\limits_{i = 1}^N {{{({X_i} - {\mu _X})}^2}} )^{{\raise0.7ex\hbox{$1$} \!\mathord{\left/
+ {\vphantom {1 2}}\right.\kern-\nulldelimiterspace}
+\!\lower0.7ex\hbox{$2$}}}}
+\end{equation}
+
+3. 一阶差分标准偏差
+\begin{equation}\label{2.14}
+{\delta _X} = \frac{1}{{N - 1}}\sum\limits_{i = 1}^{N - 1} {\left| {{X_{i + 1}} - {X_i}} \right|}
+\end{equation}
+
+4. 二阶差分标准偏差
+\begin{equation}\label{2.15}
+{\gamma _X} = \frac{1}{{N - 2}}\sum\limits_{i = 1}^{N - 2} {\left| {{X_{i + 2}} - {X_i}} \right|}
+\end{equation}
+
+5. 偏度
+
+偏度是度量数据分布的偏斜方向和程度的参数，计算公式为：
+\begin{equation}\label{2.16}
+{S_k} = \frac{1}{{N - 1}}\sum\limits_{i = 1}^N {{{({X_i} - {\mu _X})}^3}/\sigma _X^3}
+\end{equation}
+
+6. 峰度
+
+峰度是对总体中所有数据的分布形态的陡峭程度的度量，其表示为：
+\begin{equation}\label{2.17}
+{K_u} = \frac{1}{{n - 1}}\sum\limits_{i = 1}^N {\frac{{{{({X_i} - {\mu _X})}^4}}}{{\sigma _X^3}}}  - 3
+\end{equation}
+
+7. ~$\theta$~、~$\alpha$~、~$\beta$~波功率
+
+脑电信号可被分为不同的频带，分别是~$\theta$~波（4-8Hz）、~$\alpha$~波（8-13Hz）、~$\beta$~波（13-30Hz），人们在不同状态时，各类波有显著差异。因此将其分别提取出来表示
+情绪的不同特征。
+
+8. 各频带波功率比
+
+由于人处于不同状态时，各个频率的波段出现概率不同，使用其比值能够反映状态的差异。
+
+9. 近似熵
+
+近似熵是用来评判数据复杂性的参数。近似熵的抗干扰和抗噪能力比较强，无论是随机信号或是确定性信号，都可以使用近似熵进行分析，尤其是对分析生理信号
+十分有效，因为生理信号中既含有确定性成分，又含有随机成分。
+
+以下是近似熵公式推导过程：
+
+有N个点u（1），u （2），…,u（N）,以及两个固定参数m和r，m是窗长，r是一个有效阈值，有极限值ApEn(m，r)和这N个点的统计估计值ApEn(m，r，N)。
+
+（1）将这N个点按顺序组成一组m维向量：从X（1）到X（N-m+1）,其中，X(i)=[u(i)，u(i+1)，…，u(i+m-1)],i=1~N-m+1。这些向量为从第i个点开始的顺序排列的m个u 值。
+
+（2）X（i）与X（j）中对应元素差值最大的值我们将其定义为两个向量之间的距离d[X(i),X(j)]，即
+\begin{equation}\label{2.19}
+d[X(i),X(j)] = max[\left| {u(i + k) - u(j + k)} \right|],k = 0 ~ {m - 1}
+\end{equation}
+（3）给定阈值r，对每个i≤N-m+1的值，统计d[X(i)，X(j) ]小于r的数目及此数目与距离总数N-m的比值，记为$C_i^m(r)$，即：
+\begin{equation}\label{2.20}
+C_i^m(r) = \frac{1}{{N - m}}\{ [d[X(i),X(j)] < r] 的数目\}   i = 1~N - m + 1
+\end{equation}
+（4）对$C_i^m(r)$取对数，并求平均值${O^m}(r)$，即：
+\begin{equation}\label{2.21}
+{O^m}(r) = \frac{1}{{N - m + 1}}\sum\limits_{i = 1}^{N - m + 1} {\ln C_i^m(r)}
+\end{equation}
+（5）维数加1，为m+1，重复（1）- （4），得到$C_i^{m + 1}(r)$和${O^{m + 1}}(r)$。
+（6）则此序列的近似熵为：
+\begin{equation}\label{2.22}
+ApEn(m,r) = \mathop {\lim }\limits_{N \to \infty } [{O^m}(r) - {O^{m + 1}}(r)]\
+\end{equation}
+若N为有限值，则数据的近似熵为：
+\begin{equation}\label{2.23}
+ApEn(m,r,N) = {O^m}(r) - {O^{m + 1}}(r)
+\end{equation}
+
+10.分形维数
+
+几何模型的分形维数值能够反映该模型几何复杂度。
+
+现有有限维的时间序列样本X(1),X(2),…,X(N)，新的时间序列值表示为：
+\begin{equation}\label{2.24}
+X_k^m:X(m),X(m + k),X(m + 2k),...,X(m + \left[ {\frac{{N - m}}{k}} \right]k)
+\end{equation}
+其中，m=1,2,…,k。
+
+那么则有：
+\begin{equation}\label{2.25}
+{L_m}(k) = \frac{{\left\{ {(\sum\limits_{i = 1}^{\frac{{N - m}}{k}} {\left| {X(m + ik) - X(m + (i - 1)k)} \right|} )\frac{{N - 1}}{{[\frac{{N - m}}{k}]k}}} \right\}}}{k}\
+\end{equation}
+这里用$\left\langle {L(k)} \right\rangle $表示k个点的$L\_m (k)$的平均值。
+
+分形维数可从由k和$\left\langle {L(k)} \right\rangle $所画的对数图中得到。
+
+\section{基于KCCA的特征融合}
+
+核相关分析算法将样本非线性映射到高维特征空间，然后进行相关分析，得到两组变量间的非线性关联。设~$X=(x_1,x_2,...,x_n )$~ 和~$Y=(y_1,y_2,...,y_n )$~分别表示语音情感特征向量和EEG特征向量，核相关分析算法通过两个非线性映射~$\phi$~和~$\psi$~ 作用于两组特征向量
+\begin{equation}
+\begin{cases}
+\phi :x\rightarrow\phi(x)\in{F_x}
+\cr X\rightarrow\phi(x)=[\phi(x_1),\phi(x_2),...,\phi(x_n)]
+\end{cases},
+\end{equation}
+\begin{equation}
+\begin{cases}
+\psi :y\rightarrow\psi(y)\in{F_y}
+\cr Y\rightarrow\psi(y)=[\psi(y_1),\psi(y_2),...,\psi(y_n)]
+\end{cases},
+\end{equation}
+语音特征和EEG特征的核函数分别是~$K_x$~ 和~$K_y$~，则有
+\begin{equation}
+\begin{cases}
+K_x=\phi^T(x)\phi(x)
+\cr K_y=\psi^T(x)\psi(x)
+\end{cases},
+\end{equation}
+核矩阵中心化是对训练样本进行了零均值化:
+\begin{equation}
+\overline{K}=K-\frac{1}{N}1_{N\times N}K-\frac{1}{N}K1_{N\times N}+\frac{1}{N}1_{N\times N}K1_{N\times N}
+\end{equation}
+核典型相关分析算法的目标是寻找投影方向~$\alpha_\varphi$~ 和~$\beta_\omega$~，使得如下准则函数式最大
+\begin{equation}
+J(\alpha_\varphi,\beta_\omega)=\frac{\alpha_\varphi^T\phi(x)\psi(y)^T \beta_\omega}{\sqrt{\alpha_\varphi^T \phi(x)\phi(x)^T\alpha_\varphi\cdot\beta_\omega^T\psi(y)\psi(y)^T \beta_\omega }}
+\end{equation}
+向量~$\alpha_\varphi$~ 位于样本~$\phi(x_1),\phi(x_2),...,\phi(x_n)$~ 张成的空间，根据核再生理论，则存在N维向量~$\xi$~使~$\alpha_\varphi=\phi(x)\xi$~ ，同理，存在N维向量~$\eta$~使得~$\beta_\omega=\psi(y)\eta$~，带入下式中得到：
+\begin{equation}
+J(\xi,\eta)=\frac{\xi^T K_x K_y \eta}{\sqrt{\xi^T K_x^2 \xi\cdot\eta^T K_y^2 \eta}}
+\end{equation}
+防止产生没有意义的典型相关向量，需要引入正则项对式进行约束：
+\begin{equation}
+J(\xi,\eta)=\frac{\xi^T K_x K_y \eta}{\sqrt{\xi^T((1-\tau)K_x^2+\tau K_x)\xi\cdot\eta^T((1-\tau)+\tau K_y^2 ) \eta}}
+\end{equation}
+
+式中，~$0\leq\tau\leq1$~。
+因此，核典型相关分析算法就转化为关于~$\xi,\eta$~的约束优化问题，目标函数为：~$\max \xi^T K_x K_y \eta$~
+
+约束条件：
+\begin{equation}
+\begin{cases}
+\xi^T((1-\tau)K_x^2+\tau K_x)\xi=1
+\cr \eta^T((1-\tau)K_y^2+\tau K_y )\eta=1
+\end{cases},
+\end{equation}
+
+利用拉格朗日乘数法求解上述带约束的极值问题， 则相应的拉格朗日方程为：
+\begin{equation}
+\begin{aligned}
+L(\xi,\eta)=&\xi^T K_x K_y \eta-\frac{\lambda_1}{2}(\xi^T ((1-\tau)K_x^2+\tau K_x)-\\&\frac{\lambda_2}{2}(\eta^T ((1-\tau)K_y^2+\tau K_y)\eta-1).
+\end{aligned}
+\end{equation}
+
+式中，~$\lambda_1$~ 和~$\lambda_2$~为拉格朗日乘数。
+分别求 ~$L(\xi,\eta)$~关于~$\xi,\eta$~的偏导数并令其为零，即
+\begin{equation}
+\begin{cases}
+\frac{\partial L}{\xi}=K_x K_y \eta-\lambda_1((1-\tau)K_x^2+\tau K_x)\xi=0
+\cr \frac{\partial L}{\eta}=K_x K_y \xi-\lambda_2((1-\tau)K_y^2+\tau K_y)\eta=0
+\end{cases},
+\end{equation}
+
+两边同时左乘~$\xi^T$~并由~$\xi^T((1-\tau)K_x^2+\tau K_x)\xi=1$~得到~$\xi^TK_x K_y \eta=\lambda_1$~ 同理得到~$\eta^TK_x K_y \xi=\lambda_2$~  由此可知
+\begin{equation}
+J(\xi,\eta)=\eta^TK_x K_y \xi=\xi^TK_x K_y \eta=\lambda_1=\lambda_2
+\end{equation}
+又因为~$J(\xi,\eta)\leqslant 1$~，当取得最大值1时，必有~$ \lambda_1=\lambda_2=1$~。
+从而，核典型相关分析算法等价于求解如下广义特征方程对应的特征向量问题，即
+\begin{equation}
+\begin{cases}
+K_x K_y \eta=((1-\tau)K_x^2+\tau K_x)\xi
+\cr K_x K_y \xi=((1-\tau)K_y^2+\tau K_y)\eta
+\end{cases},
+\end{equation}
+求解出~$\xi,\eta$~ 提取x和y之间的非线性相关特征
+\begin{equation}
+\begin{cases}
+\mu=\xi K_x
+\cr \nu=\eta K_y
+\end{cases},
+\end{equation}
+式中，~$\mu$~和~$\nu$~是变换后的特征分量。
+将其线性变换，
+\begin{equation}
+Z=\dbinom{\mu}{\nu}=\binom{\xi\quad0}{0\quad\eta}=\binom{K_x}{K_y}
+\end{equation}
+
+\section{SVM情感分类器}
+当前语音情感识别的分类器有神经网络，支持向量机以及K近邻算法等，其中K近邻算法的情感识别率低，而神经网络要求训练样本多，分类结果不稳定，相对其他算法，支持向量机的情感分类效果更佳。并且SVM在解决实际问题中应用广泛，其理论完善，具有鲁棒性，计算简单，有众多可利用软件工具。
+
+\section{仿真实验}
+为了测试核相关分析的情数据库采用感识别性能，在matlab上进行实验验证。支持向量机采用LSSVM软件，选择CIAIC实验室测量的语音和脑电数据进行实验。该数据在全消声暗示中测量，共有18位被试，包含4种情绪：中立，悲伤，愤怒，高兴。通过观看影片的方式激发被试的情绪，随后朗读对应情绪的语音文本，并记录下对应的脑电数据和语音数据。在最终的数据集中，语音数据被截取为独立语句的形式，脑电数据也按照对应顺序进行截取。本实验选取数据库中的部分数据进行测试，每种情绪随机选取200句语音数据和对应的脑电数据作为训练数据，再在每种情绪中另取39个数据组成测试集。KCCA函数采用RBF核函数，SVM选择高斯核。为使KCCA-SVM的结果更有说服力，选择与使用单一特征以及直接拼接特征的方法进行对比。各模型的平均识别率如下表所示：
+
+\begin{table}[hbt]
+	\caption{情感识别正确率对比}
+	\centering
+	\begin{tabular}{cccccc}
+		\toprule
+		特征  & 中立 & 悲伤 &愤怒&高兴&识别率\\  
+		\midrule
+		Speech&0.21&0.49&0.67&0.49&0.49\\
+        EEG&0.77&0.36&0.36&0.67&0.54\\
+        EEG+Speech&0.69&0.54&0.44&0.77&0.61\\
+        KCCA&0.82&0.62&0.67&0.87&0.74\\
+		\bottomrule
+	\end{tabular}
+	\label{tab:label}
+\end{table}
+
+\begin{figure}[ht]
+	\centering
+	\includegraphics[width=\linewidth]{pic/1.png}
+	\caption{情感识别正确率对比}
+	\label{fig:results}
+\end{figure}
+
+从结果中
+
+\section{思考与改进}
+
+
